@@ -1,4 +1,4 @@
-﻿`sort_len(byref str, del := "\`n", shortFirst:=true, omitEmpty:=true)`
+﻿	sort_len(byref str, del := "`n", shortFirst:=true, omitEmpty:=true)
 
 Function for sorting delimited substrings in ascending or declining order of string length. Order of appearance is preserved.
 
