@@ -92,9 +92,9 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 		// Substring was found.
 		// si is the length of the substring.
 		if (si >= maxLen) {	// ensure space in ss array. (substring array)
-			sst = pr(ss, maxLen*2*sizeof(unsigned short*));				// double substring array
-			sslenst = pr(sslens, maxLen*2*sizeof(unsigned int));        // double substring lengths array
-			ssot = pr(sso, maxLen*2*sizeof(unsigned int));              // double substring offset array
+			sst = pr(ss, si*2*sizeof(unsigned short*));					// realloc substring array
+			sslenst = pr(sslens, si*2*sizeof(unsigned int));        	// realloc substring lengths array
+			ssot = pr(sso, si*2*sizeof(unsigned int));              	// realloc substring offset array
 			if (sst == 0 || sslenst == 0 ||ssot == 0)  					// fail - clean up
 				goto cleanup;
 			// success
@@ -105,20 +105,20 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 			sst = 0;													// Temp pointers need be zero to avoid freeing twice
 			sslenst = 0;           										//
 			ssot = 0;              										//
-			for (j = maxLen; j < maxLen*2; ++j) {						// zero fill the unused part only.
+			for (j = maxLen; j < si*2; ++j) {							// zero fill the unused part only.
 				ss[j] = 0;
 				sslens[j] = 0;
 				sso[j] = 0;
 			}
 			if (min == maxLen)											// if min wasn't set. Set it to maxLen*2
-				min *=2;						
-			maxLen *= 2;												// update maxLen
+				min = si*2;						
+			maxLen = si*2;												// update maxLen
 		}
 		min = si < min ? (si != 0 ? si : 1) : min;						// Update min / max 
 		max = si > max ? si : max;
 		o = sso[si-1];													// get the offset to append the found substring in the string for substrings of length si.
 		if (o+si+dellen >= sslens[si-1]){								// ensure space for substring is ss array holding strings of length si
-			tmp = sslens[si-1] == 0 ? (si+dellen)*2 : sslens[si-1]*2;	// initially, allocate space for 10 substrings of length si, subsequent expansions doubles.
+			tmp = sslens[si-1] == 0 ? (si+dellen)*(si < 50 ? 50 : 2)  : sslens[si-1]*2;	// initially, allocate space for 50 "short" or 2 "long" substrings of length si, subsequent expansions doubles.
 			sst = pr(ss[si-1], tmp*sizeof(unsigned short));				// allocate memory for tmp characters in the string holding substrings of length si.
 			if (sst == 0)
 				goto cleanup;
