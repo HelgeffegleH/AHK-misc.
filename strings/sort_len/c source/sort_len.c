@@ -60,7 +60,7 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 		goto cleanup;
 	
 	// zero init the three arrays
-	for (j=0; j<maxLen; ++j) {
+	for (j = 0; j < maxLen; ++j) {
 		ss[j] = 0;
 		sslens[j] = 0;
 		sso[j] = 0;
@@ -71,7 +71,7 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 		while(1){ 														// find next substr
 			while (src[so+si] != 0 && src[so+si] != del[0]) 			// search for delimiter
 				++si;
-			for(j=0; src[so+si+j] == del[j] && j < dellen && src[so+si+j] != 0; ++j);	// potentially found delimiter, continue search
+			for(j = 0; src[so+si+j] == del[j] && j < dellen && src[so+si+j] != 0; ++j);	// potentially found delimiter, continue search
 			
 			if (j == dellen)	                                        // delim found
 				break;													
@@ -114,7 +114,7 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 				min *=2;						
 			maxLen *= 2;												// update maxLen
 		}
-		min = si < min ? (si!=0 ? si : 1) : min;						// Update min / max 
+		min = si < min ? (si != 0 ? si : 1) : min;						// Update min / max 
 		max = si > max ? si : max;
 		o = sso[si-1];													// get the offset to append the found substring in the string for substrings of length si.
 		if (o+si+dellen >= sslens[si-1]){								// ensure space for substring is ss array holding strings of length si
@@ -136,16 +136,20 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 	} while (done == -1);												// main loop - end
 	// done ! Copy all substrings into the source buffer.
 	endOfMainLoop:
-	done = -1;
-	if (max == 0) 														// contains only delimiters - clean up and return
+	if (max == 0) { 													// contains only delimiters - clean up and return
+		if (omitEmpty != 0)
+			src[0] = 0;													// null terminate at the start of src.
+		done = nEmpty;
 		goto cleanup;
+	}
+	done = -1;
 	o = 0; 																// offset to write to in source.
 	if (shortFirst != 0) {												// short substrings first
 		if (omitEmpty == 0) {
 			while (nEmpty > 0) {										// write the delimiter nEmpty times. a,,b -> ,a,b
 				for (j = 0; j < dellen; ++j) 							// delimiter copy loop		
 					src[o+j] = del[j];
-				o+=dellen;												// increment the offset
+				o += dellen;												// increment the offset
 				--nEmpty;												// decrement the empty count until all "empty" delimiters are written
 			}
 		}
@@ -153,7 +157,7 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 			if (sslens[j] != 0) { 										// if there is a substring of length j+1,
 				if (!cpy(src+o, ss[j], sso[j]*sizeof(unsigned short)))	// copy the full length of that substring into src+o
 					goto cleanup;
-				o+=sso[j];												// increment the offset
+				o += sso[j];												// increment the offset
 			}
 		}
 		                                                                // write the last substring, adjust length by dellen to avoid trailing delimiter, also ensures no writes outside of buffer and the result is null terminated.
@@ -185,8 +189,8 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 		src[o] = 0;														// null terminate if omitting empty, if no empty found, this is already 0.
 		
 	cleanup:; 															// cleanup - free all allocations
-	for (j=0; j<maxLen; j++)
-		if (ss[j]!=0)
+	for (j= 0; j < maxLen; j++)
+		if (ss[j] != 0)
 			fr(ss[j]);
 	fr(ss);
 	fr(sso);
