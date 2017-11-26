@@ -26,8 +26,8 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 	if (*src == 0 || *del == 0 || dellen == 0)	// input check
 		return 0;
 	// variable declaration and init.	
-	unsigned int j,o,tmp;												// j is loop index, o is offset in two separate parts, tmp holds temporary values.
-												
+	unsigned int j,o;													// j is loop index, o is offset in two separate parts
+	unsigned int newLen;
 	unsigned int so = 0;												// source offset, the offset from the source (src) start where the search is currently.
 	unsigned int si = 0;												// "next" substring index. When a substring is found, si is the length of it.
 											
@@ -45,6 +45,8 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 	unsigned short** sst = 0;											// Temporary pointer for the three arrays above, used for realloc
 	unsigned int* ssot = 0;
 	unsigned int* sslenst = 0;
+	
+	unsigned short* ssst = 0;											// Temporary string buffer for realloc substring in ss array.
 	
 	// allocate space for the three arrays.
 	ss = pr(0, maxLen*sizeof(unsigned short*));	
@@ -92,19 +94,16 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 		// Substring was found.
 		// si is the length of the substring.
 		if (si >= maxLen) {	// ensure space in ss array. (substring array)
-			sst = pr(ss, si*2*sizeof(unsigned short*));					// realloc substring array
-			sslenst = pr(sslens, si*2*sizeof(unsigned int));        	// realloc substring lengths array
-			ssot = pr(sso, si*2*sizeof(unsigned int));              	// realloc substring offset array
-			if (sst == 0 || sslenst == 0 ||ssot == 0)  					// fail - clean up
+			if ((sst = pr(ss, si*2*sizeof(unsigned short*))) == 0)		// realloc substring array
 				goto cleanup;
-			// success
-			ss = sst;			   										// update pointers after successfull reallocation.
-			sslens = sslenst;      										// 
-			sso = ssot;            										// 
-			// zero init									
-			sst = 0;													// Temp pointers need be zero to avoid freeing twice
-			sslenst = 0;           										//
-			ssot = 0;              										//
+			ss = sst;			   										// update pointer after successfull reallocation.
+			if ((sslenst = pr(sslens, si*2*sizeof(unsigned int))) == 0)	// realloc substring lengths array
+				goto cleanup;
+			sslens = sslenst;      										// update pointer after successfull reallocation.
+			if ((ssot = pr(sso, si*2*sizeof(unsigned int))) == 0)			// realloc substring offset array
+				goto cleanup;
+			sso = ssot;		      										// update pointer after successfull reallocation.
+			// zero init
 			for (j = maxLen; j < si*2; ++j) {							// zero fill the unused part only.
 				ss[j] = 0;
 				sslens[j] = 0;
@@ -118,13 +117,12 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 		max = si > max ? si : max;
 		o = sso[si-1];													// get the offset to append the found substring in the string for substrings of length si.
 		if (o+si+dellen >= sslens[si-1]){								// ensure space for substring is ss array holding strings of length si
-			tmp = sslens[si-1] == 0 ? (si+dellen)*(si < 50 ? 50 : 2)  : sslens[si-1]*2;	// initially, allocate space for 50 "short" or 2 "long" substrings of length si, subsequent expansions doubles.
-			sst = pr(ss[si-1], tmp*sizeof(unsigned short));				// allocate memory for tmp characters in the string holding substrings of length si.
-			if (sst == 0)
+			newLen = sslens[si-1] == 0 ? (si+dellen)*(si < 50 ? 50 : 2)  : sslens[si-1]*2;	// initially, allocate space for 50 "short" or 2 "long" substrings of length si, subsequent expansions doubles. (Arbitrary choise)
+			ssst = pr(ss[si-1], newLen*sizeof(unsigned short));			// allocate memory for newLen characters in the string holding substrings of length si.
+			if (ssst == 0)
 				goto cleanup;
-			ss[si-1] = (unsigned short*) sst;							// successful realloc, update pointers and new max length for the buffer.
-			sst = 0;
-			sslens[si-1] = tmp;
+			ss[si-1] = ssst;											// successful realloc, update pointers and new max length for the buffer.
+			sslens[si-1] = newLen;
 		}
 		if (cpy(ss[si-1]+o, src+so, si*sizeof(unsigned short)) == 0)	// copy the substr.
 			goto cleanup;
@@ -149,7 +147,7 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 			while (nEmpty > 0) {										// write the delimiter nEmpty times. a,,b -> ,a,b
 				for (j = 0; j < dellen; ++j) 							// delimiter copy loop		
 					src[o+j] = del[j];
-				o += dellen;												// increment the offset
+				o += dellen;											// increment the offset
 				--nEmpty;												// decrement the empty count until all "empty" delimiters are written
 			}
 		}
@@ -157,7 +155,7 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 			if (sslens[j] != 0) { 										// if there is a substring of length j+1,
 				if (!cpy(src+o, ss[j], sso[j]*sizeof(unsigned short)))	// copy the full length of that substring into src+o
 					goto cleanup;
-				o += sso[j];												// increment the offset
+				o += sso[j];											// increment the offset
 			}
 		}
 		                                                                // write the last substring, adjust length by dellen to avoid trailing delimiter, also ensures no writes outside of buffer and the result is null terminated.
@@ -177,7 +175,7 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 		o += sso[min-1]-dellen; 										// this is where the null terminator should be if omitting empty
 		if (omitEmpty == 0) {
 			while (nEmpty > 0) {										// write the delimiter nEmpty times. a,,b -> a,b,
-				for (j = 0; j <dellen; ++j) 							// delimiter copy loop								
+				for (j = 0; j < dellen; ++j) 							// delimiter copy loop								
 					src[o+j] = del[j];
 				o += dellen;                                            // increment the offset
 				--nEmpty;                                               // decrement the empty count until all "empty" delimiters are written
@@ -192,14 +190,9 @@ int sort_len(unsigned short* src, unsigned short* del, int shortFirst, unsigned 
 	for (j= 0; j < maxLen; j++)
 		if (ss[j] != 0)
 			fr(ss[j]);
+																		// free temp pointers in case of early clean up (fail.) 
 	fr(ss);
 	fr(sso);
 	fr(sslens);
-	if (sst!=0) 														// free temp pointers in case of early clean up (fail.)
-		fr(sst);
-	if (ssot!=0)
-		fr(ssot);
-	if (sslenst!=0)
-		fr(sslenst);
 	return done; 														// return >= 0 on success, -1 on fail.
 }
