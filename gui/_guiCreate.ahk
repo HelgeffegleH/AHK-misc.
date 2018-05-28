@@ -22,10 +22,7 @@
 														} 
 										:	func("noenum")	; Only gui objects have _newenum
 		return w
-
-		;
 		; nested functions
-		;
 		__call(this, fn, p*){
 			; Handles all calls to the wrapper object (this), returning the wrapper object itself, or the new control in
 			; case the the wrapper wraps a Gui object and the methods is addXXX(...) or add("XXX",...)
@@ -57,8 +54,8 @@
 			if p.haskey(3) && !p[3] { ; remove callback function
 				cbfn := this.__cbfns__.delete(p[2])
 			} else {	; add callback function, creates a router function.
-				cbfn := isobject(es) && type(p[2]) == "String"	?	(ctrlOrGui) => isobject(m:=es[p[2]]) ? m.call(es, this) : %p[2]%(this)	; event sink / function name
-																:	(ctrlOrGui) => %p[2]%(this)												; function name / func/... obj.
+				cbfn := isobject(es) && type(p[2]) == "String"	?	(ctrlOrGui, par*) => isobject(m:=es[p[2]]) ? m.call(es, this, par*) : %p[2]%(this, par*)	; event sink / function name
+																:	(ctrlOrGui, par*) => %p[2]%(this, par*)														; function name / func/... obj.
 				this.__cbfns__[p[2]] := cbfn
 			}
 			oep := [p[1], cbfn] 				; onevent parameters
