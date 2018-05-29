@@ -46,7 +46,6 @@
 			; 1) creates a callback function which directs events to the udf callback function,
 			; passing the wrapper object instead of the actual control / gui object.
 			; 2) removes the callback.
-			; In both cases, the wrapper object is returned
 			local
 			; this - the wrapper object
 			; es - the gui's event sink (if exist)
@@ -61,7 +60,7 @@
 			oep := [p[1], cbfn] 				; onevent parameters
 			p.haskey(3) ? oep.push(p[3]) : ""	; only add last param if exist, passing a blank would mean "do not call the callback".
 			this.base.onevent(oep*)				; this.base is the gui or control object, 
-			return this			
+			return	
 		}
 		noenum(p*){ ; For correct error message when using _newenum on a control.
 			throw exception("Unknown method.", -1, "_NewEnum")
