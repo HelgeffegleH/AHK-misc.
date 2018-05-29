@@ -21,6 +21,7 @@
 																		: false
 														} 
 										:	func("noenum")	; Only gui objects have _newenum
+		_GuiFromHwnd(w.hwnd, w)	; Adds the wrapper object to _GuiFromHwnd list (controls are added to the same list).
 		return w
 		; nested functions
 		__call(this, fn, p*){
@@ -31,10 +32,19 @@
 			; fn - the method to call.
 			; p - method parameters.
 			local
-			if type(this) == "Gui" && instr(fn, "add") == 1 {
-				i := this.__ctrls__.push( ctrl_gui((this.base)[fn](p*), this.__es__) )	; save control for _newenum
-				return this.__ctrls__[i] 	; return the new control wrapper
-			} else if fn = "onevent" {		; Events require special handling, see createEventRouter()
+			if type(this) == "Gui" {
+				if instr(fn, "add") == 1 {
+					i := this.__ctrls__.push( ctrl_gui((this.base)[fn](p*), this.__es__) )	; save control for _newenum
+					return this.__ctrls__[i] 		; return the new control wrapper
+				} else if fn = "destroy" {			; handle removal from _GuiFromHwnd and _GuiCtrlFromHwnd.
+					for hwnd in this
+						_GuiCtrlFromHwnd(hwnd, -1)	; remove all control wrappers from the _GuiCtrlFromHwnd list
+					_GuiFromHwnd(this.hwnd, -1)		; remove the gui wrapper from the _GuiFromHwnd list
+					this.base.destroy()				; destroy the gui.
+					return this
+				}
+			} 
+			if fn = "onevent" {		; Events require special handling, see createEventRouter()
 				createEventRouter(this, this.__es__, p)
 			} else {
 				(this.base)[fn](p*)			; call the method
@@ -67,4 +77,16 @@
 		}
 	}
 }
-
+_GuiFromHwnd(hwnd, addremove := false){
+	; Hwnd, the hwnd of the Gui or GuiControl object to handle
+	; addremove, internal use only, pass an object to add to the list of guis and guicontrols, pass -1 to remove the object at 'hwnd'.
+	static guis := []	; contains all gui and guicontrol wrappers. Use hwnd as key and wrapper object as value.
+	if isobject(addremove)
+		return guis[hwnd] := addremove
+	else if addremove
+		return guis.delete(hwnd)
+	return guis.haskey(hwnd) ? guis[hwnd] : false
+}
+_GuiCtrlFromHwnd(hwnd, addremove := false){
+	return _GuiFromHwnd(hwnd, addremove)	; gui control wrappers are stored in the same array as gui wrappers.
+}
