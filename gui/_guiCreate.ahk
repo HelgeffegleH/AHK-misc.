@@ -11,7 +11,7 @@
 																							; all properties to work with out any extra code.
 					__es__ 		: es,	; event sink
 					__cbfns__	: [],	; callback functions (for onevent)
-					__ctrls__ 	: [],	; the controls of the gui, for _NewEnum
+					__ctrls__ 	: []	; the controls of the gui, for _NewEnum
 				}
 		w._newenum := type(o) == "Gui"	?  (this) =>	{	; enumerator object
 															enum : this.__ctrls__._newenum(), 
