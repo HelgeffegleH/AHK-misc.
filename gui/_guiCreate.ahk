@@ -34,8 +34,8 @@
 			local
 			if type(this) == "Gui" {
 				if instr(fn, "add") == 1 {
-					i := this.__ctrls__.push( ctrl_gui((this.base)[fn](p*), this.__es__) )	; save control for _newenum
-					return this.__ctrls__[i] 		; return the new control wrapper
+					this.__ctrls__.push( w := ctrl_gui((this.base)[fn](p*), this.__es__) )	; save control for _newenum
+					return w				 		; return the new control wrapper
 				} else if fn = "destroy" {			; handle removal from _GuiFromHwnd and _GuiCtrlFromHwnd.
 					for hwnd in this
 						_GuiCtrlFromHwnd(hwnd, -1)	; remove all control wrappers from the _GuiCtrlFromHwnd list
@@ -60,17 +60,22 @@
 			; this - the wrapper object
 			; es - the gui's event sink (if exist)
 			; p - onevent parameters
-			if p.haskey(3) && !p[3] { ; remove callback function
-				cbfn := this.__cbfns__.delete(p[2])
+			;
+			; cbfn, callback function.
+			p1 := p[1], p2 := p[2]								; convenience, allows p2 to be free variable and edit p[2] at the same time
+			if this.__cbfns__[p1, p2] {							; Callback function already exists.
+				cbfn := p[3] == 0	
+						? this.__cbfns__[p1].delete(p2) 		; Do not call this callback.
+						: this.__cbfns__[p1, p2]				; Changes AddRemove between 1 or -1 (or error).
 			} else {	; add callback function, creates a router function.
-				cbfn := isobject(es) && type(p[2]) == "String"	?	(ctrlOrGui, par*) => isobject(m:=es[p[2]]) ? m.call(es, this, par*) : %p[2]%(this, par*)	; event sink / function name
-																:	(ctrlOrGui, par*) => %p[2]%(this, par*)														; function name / func/... obj.
-				this.__cbfns__[p[2]] := cbfn
+				cbfn := es && type(p[2]) == "String" && isobject(m:=es[p2])			; m, event sink method.
+						?	(ctrlOrGui, par*) => m.call(es, this, par*)				; gui uses event sink
+						:	(ctrlOrGui, par*) => %p2%(this, par*)	 				; else, function name or some func/... obj.
+				this.__cbfns__[p1, p2] := cbfn										; store the callback router to enable it to be deleted later.
 			}
-			oep := [p[1], cbfn] 				; onevent parameters
-			p.haskey(3) ? oep.push(p[3]) : ""	; only add last param if exist, passing a blank would mean "do not call the callback".
-			this.base.onevent(oep*)				; this.base is the gui or control object, 
-			return	
+			p[2] := cbfn				; the second parameter is replace with the callback router
+			this.base.onevent(p*)		; this.base is the gui or control object, 
+			return
 		}
 		noenum(p*){ ; For correct error message when using _newenum on a control.
 			throw exception("Unknown method.", -1, "_NewEnum")
