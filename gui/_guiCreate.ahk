@@ -68,7 +68,7 @@
 						? this.__cbfns__[p1].delete(p2) 		; Do not call this callback.
 						: this.__cbfns__[p1, p2]				; Changes AddRemove between 1 or -1 (or error).
 			} else {	; add callback function, creates a router function.
-				cbfn := es && type(p[2]) == "String" && isobject(m:=es[p2])			; m, event sink method.
+				cbfn := es && type(p2) == "String" && isobject(m:=es[p2])			; m, event sink method.
 						?	(ctrlOrGui, par*) => m.call(es, this, par*)				; gui uses event sink
 						:	(ctrlOrGui, par*) => %p2%(this, par*)	 				; else, function name or some func/... obj.
 				this.__cbfns__[p1, p2] := cbfn										; store the callback router to enable it to be deleted later.
