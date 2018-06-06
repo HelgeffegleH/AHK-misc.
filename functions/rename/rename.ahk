@@ -23,7 +23,6 @@
  		FileMove AHK_AH_Dir, AHK_CB_Dir 		;-- Renames AutoHotkey(U32/U64).exe to current script.exe
  		if ErrorLevel { 						;-- Unable to rename?
  			MsgBox  "Unable to rename AutoHotkey.exe"
- 			Run AHKDir
  			ExitApp
  		}
 		if fileExist(AHK_CB_Dir) {												;-- Verifies new AHK executable is in place
@@ -31,7 +30,6 @@
   		} else { 	;-- Unable to run new ahk name? 
   			MsgBox  "Error running " A_ScriptFullPath
   			FileMove AHK_CB_Dir, AHK_AH_Dir
-  			ExitApp
 		}
 		ExitApp ;-- Ensures rest of code does not run after 
 	} else { ;-- AHK path matches script name
