@@ -1,6 +1,6 @@
 ﻿rename(NewName := "", addMenu := true, reloading:=0) {
 	; Original from: https://autohotkey.com/boards/viewtopic.php?f=6&t=21817
-	; This version: 
+	; This version: https://autohotkey.com/boards/viewtopic.php?f=6&t=50183
 	; NewName, the new name to use.
 	; addMenu, specify true to add a menu item to the tray menu to reload the script. (Makes script persistent)
 	; reloading, internal use only, do not pass a value.
@@ -54,5 +54,5 @@ reload(name := "", addMenu := ""){
 		n := name, a :=addMenu
 		return
 	}
-	rename(n, a, true)
+	rename n, a, true
 }
