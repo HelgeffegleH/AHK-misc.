@@ -4,6 +4,7 @@
 	; NewName, the new name to use.
 	; addMenu, specify true to add a menu item to the tray menu to reload the script. (Makes script persistent)
 	; reloading, internal use only, do not pass a value.
+	local
 	if a_iscompiled
 		throw exception(a_thisfunc " doesn't support compiled scripts.")
 	if NewName
