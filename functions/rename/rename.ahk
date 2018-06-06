@@ -5,7 +5,7 @@
 	; addMenu, specify true to add a menu item to the tray menu to reload the script. (Makes script persistent)
 	; reloading, internal use only, do not pass a value.
 	if a_iscompiled
-		return
+		throw exception(a_thisfunc " doesn't support compiled scripts.")
 	if NewName
 		NewName .= RegExMatch(NewName,"\.exe$") ? "":".exe"
 	else
