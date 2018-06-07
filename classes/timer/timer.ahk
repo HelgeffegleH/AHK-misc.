@@ -3,7 +3,7 @@
 	__new(callback, priority:=0){
 		this.callback := callback
 		this.priority := priority
-		quickTimer.timers.push(this)
+		quickTimer.timers[this] := ""	; store the instance for xxxAll() methods
 	}
 	; Timer states:
 	; 1 - running
@@ -32,6 +32,8 @@
 			this.stop()
 		this.state := -1
 		setTimer(this.callback, "delete")
+		quickTimer.timers.delete this
+		this.base := "" ; will throw error on further use.
 	}
 	startAll(){
 		this.loopTimers(quickTimer.start)
@@ -47,7 +49,7 @@
 	loopTimers(fn){
 		local
 		global quickTimer
-		for k, timer in quickTimer.timers
+		for timer in quickTimer.timers
 			fn.call(timer)
 	}
 	static enabled := 0
