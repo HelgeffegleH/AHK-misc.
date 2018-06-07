@@ -14,10 +14,26 @@ b::bTimer.start()
 a up::aTimer.stop()
 b up::bTimer.stop()
 
-c::setTimer c() => send("c"), 0
-d::setTimer d() => send("d"), 0
-c up::settimer "c", "off" 
-d up::settimer "d", "off" 
+c::
+	if cIsOn
+		return
+	cIsOn := true
+	setTimer c() => send("c"), 0
+return
+d::
+	if dIsOn
+		return
+	dIsOn := true
+	setTimer d() => send("d"), 0
+return
+c up::
+	settimer "c", "off" 
+	cIsOn := false
+return
+d up::
+	settimer "d", "off" 
+	dIsOn := false
+return
 
 esc::exitapp
 
