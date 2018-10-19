@@ -18,7 +18,7 @@
 	minparams := ( io ? Function : fn := func(Function) ).MinParams 
 	
 	if (minparams != "")	
-		if not minparams is number	; if the MinParams property doesn't return a number, minparams is 0.
+		if minparams is not number	; if the MinParams property doesn't return a number, minparams is 0.
 			minparams := 0
 	has_minparams := minparams != "" ? true : false
 	minparams := has_minparams ? minparams : 0
@@ -67,7 +67,6 @@
 CallbackFree(Address, cb := "")	{
 	; Address, the address to free.
 	; cb, internal use, always omit. Used for setting/getting callback functions
-	; V2 version does not check if Address is valid. This function is likely to cause an application crash on invalid input.
 	; see: https://lexikos.github.io/v2/docs/commands/CallbackCreate.htm
 	static callback_cache := []	; Contains all callback objects.
 	if cb { ; add to cache
@@ -75,6 +74,8 @@ CallbackFree(Address, cb := "")	{
 			return callback_cache[ cb ] := Address
 		throw exception("?")
 	}
+	if (address < 65536 && address >= 0)
+		throw exception("Parameter #1 invalid.", -1)
 	; Free the address and callback object.
 	dllcall("GlobalFree", "Ptr", Address, "Ptr")
 	objrelease( &callback_cache.delete( Address ) )
