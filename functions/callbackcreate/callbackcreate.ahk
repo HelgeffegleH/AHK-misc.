@@ -74,6 +74,8 @@ CallbackFree(Address, cb := "")	{
 			return callback_cache[ cb ] := Address
 		throw exception("?")
 	}
+	if address is not number
+		address := 0
 	if (address < 65536 && address >= 0)
 		throw exception("Parameter #1 invalid.", -1)
 	; Free the address and callback object.
