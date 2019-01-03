@@ -6,7 +6,7 @@ This function works as the built-in function `dllcall`, but with the added _valu
 
 ### `dllcall_struct(p*)`
 
-Paramters are the same as for the built-in function.
+Parameters are the same as for the built-in function.
 
 ### Pass struct by value
 
@@ -38,3 +38,7 @@ For __AHK 64 bit__, this function supports the _x64 calling convention_ as descr
 Likewise, `str` works as input, but cannot output, again, use 'ptr' and retrieve with `strget`.
 * The built-in optimisation for the first parameter cannot be done for this function, to improve performance consider _looking up the function's address beforehand_ as described in [DllCall - performance](https://lexikos.github.io/v2/docs/commands/DllCall.htm#load).
 * Likely more...
+
+### Example
+
+For an example, see `example.ahk`.
