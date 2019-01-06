@@ -83,7 +83,7 @@
 		if cc && trim(cc) != 'cdecl' ; trim ok here, but dllcall will complain if leading space: ' cdecl' 
 			throw exception('Invalid calling convention: ' string(cc), -1)
 		
-		return_struct := return_param.pop()		; struct object
+		return_struct := return_param[ 2 ]		; struct object
 		sz := sizeof( return_struct )
 		verifySize
 		
