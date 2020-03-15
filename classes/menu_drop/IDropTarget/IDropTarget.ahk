@@ -10,7 +10,7 @@
 		; where Data is an object with ownprops:
 		; CF_TEXT 	: an array of text dropped
 		; CF_HDROP	: an array of files (paths) dropped
-		; Data only has the property if they contain data, so check, eg, data.hasownprop(CF_TEXT) to see if
+		; Data only has the property if they contain data, so check, eg, data.hasownprop('CF_TEXT') to see if
 		; any text is being / has been dropped.
 		; For the other params see IDropTarget docs on MSDN. In particular handle pdwEffect to set the correct cursor to indicate if the drop is handled.
 		; The functions should return the HRESULT suitable for the corresponding IDropTarget methods.
@@ -24,18 +24,13 @@
 		this := base.new() 		; The AHK object which will hold the reference to IDT
 		pthis := &this			; Free var
 		
-		; IDT prop
-		this.defineprop 'IDT', {
-			get : (this) => IDT
-			; set throws
-		}
 		; Ptr property:
 		this.defineprop 'ptr', {
-			get : (this) => this.IDT.ptr
+			get : (this) => IDT.ptr
 			; set throws
 		}	
 		
-		; Interface methods, closures. In each method 'self' will hold the value of pIDT.
+		; Interface methods, closures. In each method 'self' will hold the value of IDT.ptr.
 		; IUnknown methods:
 		QueryInterface(self, riid, ppvObject) => 0
 		AddRef(self) =>  objaddref(pthis)	; increment the reference count for the AHK instance, as long as it is alive, the "binary instance" will be too.
