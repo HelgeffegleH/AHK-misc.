@@ -1,4 +1,7 @@
-﻿#warn all
+﻿; Hotkeys:
+; F1 - show the menu
+; Esc - clean-up and exitapp.
+#warn all
 #include ..\menu_drop.ahk
 #include example1_constants.ahk
 
@@ -28,9 +31,6 @@ menu_drop.subscribe(
 		}
 )
 
-; Hotkeys:
-; F1 - show the menu
-; Esc - clean-up and exitapp.
 F1::m.show
 
 esc::
