@@ -1,8 +1,8 @@
 ﻿; An "n-dimensional" map.
 class map_n extends map {
-	__item[p*] {
+	__item[k1, p*] {
+		; Consider one index at a time, k1.
 		get {
-			local k1 := p.removeat(1)		; Consider one index at a time, begin with the first.
 			return p.length 			
 				; Below, the first index operator invokes "map.__item[this, k1]" (since we use the "base" keyword),
 				; the second, [p*], invokes "map_n.__item" since the first index operator returns an object of type map_n,
@@ -12,7 +12,6 @@ class map_n extends map {
 			
 		}
 		set {
-			local k1 := p.removeat(1)		; Consider one index at a time, the first.
 			if	p.length  					; If there are still parameters remaining
 				&& (!this.has(k1)			; and this index has not been set before
 				
@@ -25,6 +24,7 @@ class map_n extends map {
 			( p.length )					; Any remaining indices ?
 				? this[k1][p*] := value 	; Yes, then invoke the sub-map with one less parameters than this setter was called with.
 											; Note that this[k1], will invoken the getter above
+			
 				: base[k1] := value			; No, then we store the value in this sub-map, without creating any other sub-map. 
 											; We use "base" to avoid invoking the above getter, this will just store the value instead.
 		}
