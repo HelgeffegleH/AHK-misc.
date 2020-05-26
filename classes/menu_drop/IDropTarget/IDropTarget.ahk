@@ -118,8 +118,6 @@
 		; free all methods
 		loop this.fn_count
 			callbackfree numget(vt + (a_index-1) * a_ptrsize)
-		this.defineprop 'ptr', {}	
-		this.defineprop 'IDT', {}	; Frees the "binary instance" (not needed if called from __delete)
 	}
 	
 	static getData(pDataObj) {
