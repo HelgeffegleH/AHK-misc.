@@ -17,7 +17,7 @@
 	; return:
 	;
 	;	function object, (closure),	call this function without any parameters to stop the watch and free memory. 
-	;					 			You must not call this function object while the callback function executes.
+	;					 			You must not call this function object while the completion function executes.
 	
 	
 	; constants:
@@ -60,12 +60,12 @@
 			nBufferLength,
 			bWatchSubtree,
 			dwNotifyFilter, 
-			lpBytesReturned := 0,
+			0,						; lpBytesReturned
 			lpOverlapped,
 			lpCompletionRoutine 
 		)
 	} catch e {
-		if isSet(lpCompletionRoutine) ; for the rare case where callbackcreate failed, probably out of mem.
+		if isSet(lpCompletionRoutine) ; for the rare case where callbackcreate or bufferalloc failed, probably out of mem.
 			callbackfree lpCompletionRoutine
 		CloseHandle hDirectory
 		throw e
@@ -124,7 +124,7 @@
 		dwNumberOfBytesTransfered &= 0xffffffff
 		
 		if !dwErrorCode && dwNumberOfBytesTransfered { ; Success
-			local cbo := {
+			local result := {
 				BytesTransfered : dwNumberOfBytesTransfered,
  				EventType		: numget(lpBuffer, 4, 'uint'),			; taken from teadrinker
 				Name			: strget(lpBuffer.ptr + 12,
@@ -132,7 +132,7 @@
 				buffer			: lpBuffer								; User not allowed to use this after callback returns true
 			}
 			try 
-				if  % callback %( cbo )
+				if  % callback %( result )
 					; Continue monitor
 					ReadDirectoryChangesW(
 						hDirectory,
@@ -140,14 +140,15 @@
 						nBufferLength,
 						bWatchSubtree,
 						dwNotifyFilter, 
-						lpBytesReturned := 0,
+						0,						; lpBytesReturned
 						lpOverlapped,
 						lpCompletionRoutine 
 					)
 			finally
 				can_stop := true
 		}
-		can_stop := true
+		else
+			can_stop := true
 	}
 	#include lib\kernel32.ahk
 }
