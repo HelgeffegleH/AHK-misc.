@@ -34,6 +34,6 @@ filter := FILE_NOTIFY_CHANGE_FILE_NAME
 
 watch_folder_until_exit a_scriptdir, filter, ( result )
 	=> msgbox(
-		result.Name . '`n'
-	.  	["Added", "Removed", "Modified", "Renamed, old name", "Renamed, new name"][ result.EventType ] ; taken from teadrinker.
+		result.FileName . '`n'
+	.  	["Added", "Removed", "Modified", "Renamed, old name", "Renamed, new name"][ result.Action ] ; taken from teadrinker.
 	)
