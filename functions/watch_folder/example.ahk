@@ -21,7 +21,7 @@ watch_folder_until_exit(
 			msgbox 'Failed to stop watching folder:`n' . dir
 	}
 }
-
+a
 FILE_NOTIFY_CHANGE_FILE_NAME	:= 0x1
 FILE_NOTIFY_CHANGE_DIR_NAME		:= 0x2
 FILE_NOTIFY_CHANGE_ATTRIBUTES	:= 0x4
@@ -34,6 +34,7 @@ filter := FILE_NOTIFY_CHANGE_FILE_NAME
 
 watch_folder_until_exit a_scriptdir, filter, ( result )
 	=> msgbox(
-		result.FileName . '`n'
+		result.Directory	. '`n'
+	.	result.FileName 	. '`n'
 	.  	["Added", "Removed", "Modified", "Renamed, old name", "Renamed, new name"][ result.Action ] ; taken from teadrinker.
 	)
