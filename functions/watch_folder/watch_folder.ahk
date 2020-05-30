@@ -148,7 +148,7 @@
 		}
 		else
 			can_stop := true
-			
+		return
 		next_record() {
 			local result :=  {
 				Action : numget(lpBuffer, NextEntryOffset + 4, 'uint'),
@@ -163,6 +163,6 @@
 				NextEntryOffset := 0
 			return result
 		}
-	}
+	} ; end CompletionRoutine
 	#include lib\kernel32.ahk
 }
