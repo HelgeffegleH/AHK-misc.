@@ -9,7 +9,7 @@
 	;	dwNotifyFilter,	(integer),	any valid combination of FILE_NOTIFY_CHANGE_XXX flags, see:
 	;									https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
 	;	callback, 		(func), 	the function to call when an event occurs. This function should accept one parameter:
-	;								an object { BytesTransfered, EventType, Name, buffer },
+	;								an object { Action, FileName },
 	;								the function should return true to continue monitoring the folder.
 	;
 	;	bWatchSubtree,	(integer),	specify true (default) to also watch subfolders, else false.
@@ -124,16 +124,14 @@
 		dwNumberOfBytesTransfered &= 0xffffffff
 		
 		if !dwErrorCode && dwNumberOfBytesTransfered { ; Success
-			local result := {
-				BytesTransfered : dwNumberOfBytesTransfered,
- 				EventType		: numget(lpBuffer, 4, 'uint'),			; taken from teadrinker
-				Name			: strget(lpBuffer.ptr + 12,
-									numget(lpBuffer, 8, 'uint') // 2), 
-				buffer			: lpBuffer								; User not allowed to use this after callback returns true
-			}
-			try 
-				if  % callback %( result )
-					; Continue monitor
+			local NextEntryOffset := 0 ; free var
+			local cb_result := 0
+			try {
+				loop 
+					cb_result :=  % callback %( next_record() ) && msgbox(a_index)
+				until !NextEntryOffset || !cb_result
+				; Continue monitor
+				if cb_result	
 					ReadDirectoryChangesW(
 						hDirectory,
 						lpBuffer,
@@ -143,12 +141,27 @@
 						0,						; lpBytesReturned
 						lpOverlapped,
 						lpCompletionRoutine 
-					)
+					)	
+			}				
 			finally
 				can_stop := true
 		}
 		else
 			can_stop := true
+			
+		next_record() {
+			local result :=  {
+				Action : numget(lpBuffer, NextEntryOffset + 4, 'uint'),
+				FileName : strget(lpBuffer.ptr + 12 + NextEntryOffset,
+					numget(lpBuffer, 8, 'uint') // 2 )
+			}
+			local bytes_to_skip := numget(lpBuffer, NextEntryOffset, 'uint')
+			if bytes_to_skip
+				NextEntryOffset += bytes_to_skip
+			else
+				NextEntryOffset := 0
+			return result
+		}
 	}
 	#include lib\kernel32.ahk
 }
