@@ -9,7 +9,7 @@
 	;	dwNotifyFilter,	(integer),	any valid combination of FILE_NOTIFY_CHANGE_XXX flags, see:
 	;									https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
 	;	callback, 		(func), 	the function to call when an event occurs. This function should accept one parameter:
-	;								an object { Action, FileName },
+	;								an object { Action, FileName, Directory },
 	;								the function should return true to continue monitoring the folder.
 	;
 	;	bWatchSubtree,	(integer),	specify true (default) to also watch subfolders, else false.
@@ -128,7 +128,7 @@
 			local cb_result := 0
 			try {
 				loop 
-					cb_result :=  % callback %( next_record() ) && msgbox(a_index)
+					cb_result :=  % callback %( next_record() )
 				until !NextEntryOffset || !cb_result
 				; Continue monitor
 				if cb_result	
@@ -153,7 +153,8 @@
 			local result :=  {
 				Action : numget(lpBuffer, NextEntryOffset + 4, 'uint'),
 				FileName : strget(lpBuffer.ptr + 12 + NextEntryOffset,
-					numget(lpBuffer, 8, 'uint') // 2 )
+					numget(lpBuffer, 8, 'uint') // 2 ),
+				Directory : dir
 			}
 			local bytes_to_skip := numget(lpBuffer, NextEntryOffset, 'uint')
 			if bytes_to_skip
