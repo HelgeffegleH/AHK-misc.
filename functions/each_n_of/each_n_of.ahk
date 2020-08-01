@@ -12,6 +12,7 @@ each_n_of(n, p*) {
 	local
 	if !(length := p.length)
 		|| n * length > 19
+		|| !n
 		throw exception('Invalid use.')
 	enumerators := []
 	for enumerable_obj in p
