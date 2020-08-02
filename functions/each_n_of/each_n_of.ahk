@@ -10,13 +10,18 @@ each_n_of(n, p*) {
 	; All enumerable objects (in p*) must accept at least n output parameters.
 	; Enumeration stops when the first enumerator returns false.
 	local
-	if !(length := p.length)
+	enumerators := []
+	length := 0
+	for enumerable_obj in p
+		if isobject( enumerable_obj )
+			enumerators.push( enumerable_obj.__enum( n ) )
+			, length++
+		else
+			break
+	if 	!length
 		|| n * length > 19
 		|| !n
 		throw exception('Invalid use.')
-	enumerators := []
-	for enumerable_obj in p
-		enumerators.push  enumerable_obj.__enum( n )
 	if length == 1 ; this also implies that n <= 9
 		return enumerators[1]
 	
@@ -49,20 +54,21 @@ each_n_of(n, p*) {
 each_sub_array_of(p) {
 	; p can contain any amount of linear sub arrays with a maximum of 19 items each.
 	local
-	n := p[1].length	; number of output variables, assume all sub-arrays have the same length.
-	if n > 19
+	n := p[1].length	; number of output variables, assume all sub-arrays have the
+						; same length
+	if  n > 19 
+		|| !p[1].has(n) ; and that all indices have values.
 		throw exception('Not supported.')
-	i := 0 				; the index of the sub array (in p) being considered.
-	i_max := p.length	; for the end condition
+	i := 1 				; the index of the sub array (in p) being considered.
 	
 	return func('enum')
 	
 	enum(byref out1 := unset, byref out2 := unset, byref out3 := unset, byref out4 := unset, byref out5 := unset, byref out6 := unset, byref out7 := unset, byref out8 := unset, byref out9 := unset, byref out10 := unset, byref out11 := unset, byref out12 := unset, byref out13 := unset, byref out14 := unset, byref out15 := unset, byref out16 := unset, byref out17 := unset, byref out18 := unset,
 		byref out19 := unset) {
 		
-		if i >= i_max 
+		if !p.has(i) 
 			return false
-		sub_array := p[++i]
+		sub_array := p[i++]
 		loop n
 			out%a_index% := sub_array[a_index]
 		return true
