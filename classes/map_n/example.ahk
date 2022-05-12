@@ -1,8 +1,10 @@
 ﻿#include map_n.ahk
 ; Example:
-mn := map_n.new()			; Create a new map
+mn := map_n()			; Create a new map
 ; Store some values:
+
 mn[1, 1, 1] := 'a'			
+
 mn[1, 1, 2] := 'b'
 mn['x', 'y', 'z'] := 1
 mn['x', 'y', 'w'] := 2
