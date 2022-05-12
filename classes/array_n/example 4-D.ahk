@@ -1,7 +1,7 @@
 ﻿#include array_n.ahk
 ; 4-D loop example:
 ; Create a book of 3 chapters each with 2 pages containing a grid of 3 rows and 4 columns:
-arr := array_n.new(3, 2, 3, 4) 
+arr := array_n(3, 2, 3, 4) 
 
 ; All elements in an array_n is layed out sequentially in an underlaying linear array.
 loop arr.length ; the size of the array

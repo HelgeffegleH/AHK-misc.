@@ -5,7 +5,7 @@ pages := 2
 rows := 2
 cols := 2
 
-grid_book := array_n.new(pages, rows, cols)
+grid_book := array_n(pages, rows, cols)
 
 grid_book[1,1,2] := 'A'
 grid_book[2,2,1] := 'B'

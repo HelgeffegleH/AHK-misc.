@@ -8,7 +8,6 @@
 	static base_index := 1 ; indicates one-based, subclasses can override this.
 	static __new() => this.prototype.class := this ; to allow subclasses to override base_index 
 	__new(dimensions*) {
-		local
 		; calculate the length of the "underlying" array
 		l := 1	
 		for length in dimensions
@@ -18,13 +17,12 @@
 	}
 	__item[indices*] {
 		; Access the underlying linear array:
-		get => base[ this.getIndex( indices ) ]				
-		set => base[ this.getIndex( indices ) ] := value
+		get => super[ this.getIndex( indices ) ]				
+		set => super[ this.getIndex( indices ) ] := value
 	}
 	
 	getIndex(indices) {
 		; Calculates the index in the "underlying" linear array
-		local
 		linear_index 													; linear_index is the index to access in the underlying linear array. 
 			:= base_index  												; To begin, pretend that the base index of the underlying array matches 
 			:= this.class.base_index 									; this base index.
